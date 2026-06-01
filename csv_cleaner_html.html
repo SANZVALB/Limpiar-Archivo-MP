@@ -26,24 +26,8 @@
     max-width: 660px;
   }
   .header { display: flex; align-items: center; gap: 18px; margin-bottom: 0.4rem; }
-  .logo {
-    width: 56px; height: 56px; border-radius: 50%;
-    background: #1e2130;
-    border: 2px solid #3a3a5a;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .logo-icon {
-    width: 28px; height: 22px; position: relative;
-  }
-  .logo-icon span {
-    display: block; position: absolute;
-    background: #fff; border-radius: 2px;
-  }
-  .logo-icon .s1 { width: 18px; height: 5px; top: 0; left: 0; transform: skewX(-10deg); }
-  .logo-icon .s2 { width: 12px; height: 5px; top: 8px; left: 4px; transform: skewX(-10deg); }
-  .logo-icon .s3 { width: 18px; height: 5px; top: 16px; left: 8px; transform: skewX(-10deg); }
-  .logo-text { font-size: 7px; font-weight: 700; color: #aaa; letter-spacing: 0.12em; margin-top: 3px; }
+  .logo { width: 58px; height: 58px; border-radius: 12px; overflow: hidden; flex-shrink: 0; }
+  .logo img { width: 100%; height: 100%; object-fit: cover; }
   .header-info h1 { font-size: 20px; font-weight: 700; color: #fff; }
   .header-info .firma { font-size: 12px; color: #7070a0; margin-top: 2px; }
   .sub { font-size: 13px; color: #7070a0; margin-bottom: 2rem; margin-left: 74px; }
@@ -116,16 +100,10 @@
 <div class="card">
   <div class="header">
     <div class="logo">
-      <div class="logo-icon">
-        <span class="s1"></span>
-        <span class="s2"></span>
-        <span class="s3"></span>
-      </div>
-      <div class="logo-text">SANZVAL</div>
+      <img src="logo.png" alt="Logo SANZVAL">
     </div>
     <div class="header-info">
-      <h1>Informática SANZVAL</h1>
-      <div class="firma">Limpiador de archivos CSV</div>
+      <h1>Limpieza de Archivo MP</h1>
     </div>
   </div>
   <p class="sub">Subí tu archivo — se limpia automáticamente y descargás los dos archivos.</p>
