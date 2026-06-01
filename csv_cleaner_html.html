@@ -64,16 +64,15 @@
   .resultados { display: none; }
   .divider { border: none; border-top: 1px solid #2a2a45; margin: 1.5rem 0; }
 
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
+  .stats  { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
   .stats2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 1.5rem; }
   .stat { background: #0f0f1e; border: 1px solid #2a2a45; border-radius: 12px; padding: 1rem; text-align: center; }
   .stat .lbl { font-size: 11px; color: #50507a; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
   .stat .val { font-size: 28px; font-weight: 700; }
   .stat.tot .val { color: #AFA9EC; }
-  .stat.ok .val  { color: #1D9E75; }
-  .stat.rm .val  { color: #E24B4A; }
+  .stat.ok  .val { color: #1D9E75; }
+  .stat.rm  .val { color: #E24B4A; }
 
-  /* Mensaje archivo limpio */
   .aviso-limpio {
     display: none;
     background: #0a2e1a;
@@ -130,27 +129,23 @@
   <div class="resultados" id="resultados">
     <hr class="divider">
 
-    <!-- Stats contadores -->
     <div class="stats">
       <div class="stat tot"><div class="lbl">Total</div><div class="val" id="sTotal">0</div></div>
       <div class="stat ok"><div class="lbl">Limpias</div><div class="val" id="sClean">0</div></div>
       <div class="stat rm"><div class="lbl">Eliminadas</div><div class="val" id="sRemoved">0</div></div>
     </div>
 
-    <!-- Stats montos — solo si hay eliminadas -->
     <div class="stats2" id="stats2">
       <div class="stat ok"><div class="lbl">Monto limpio (ARS)</div><div class="val" style="font-size:20px" id="sAmountClean">0,00</div></div>
       <div class="stat rm"><div class="lbl">Monto eliminado (ARS)</div><div class="val" style="font-size:20px" id="sAmountRemoved">0,00</div></div>
     </div>
 
-    <!-- Aviso archivo sin registros a eliminar -->
     <div class="aviso-limpio" id="avisoLimpio">
       <div class="icono">✅</div>
       <p>El archivo no contiene registros a eliminar</p>
       <div class="monto-total">Monto total del archivo: <span id="montoTotal">0,00</span> ARS</div>
     </div>
 
-    <!-- Botones descarga — solo si hay eliminadas -->
     <div id="bloqueDescarga">
       <div class="btn-group">
         <button class="btn btn-purple" id="btnClean">⬇ Descargar CSV limpio</button>
@@ -183,7 +178,7 @@ function primerCol(linea) {
   return idx === -1 ? l : l.substring(0, idx);
 }
 
-function parseMonto(linea, idx) {
+function splitLinea(linea) {
   const partes = [];
   let cur = '', inQ = false;
   for (let i = 0; i < linea.length; i++) {
@@ -193,6 +188,11 @@ function parseMonto(linea, idx) {
     cur += c;
   }
   partes.push(cur);
+  return partes;
+}
+
+function parseMonto(linea, idx) {
+  const partes = splitLinea(linea);
   const val = (partes[idx] || '').trim();
   if (!val) return 0;
   let normalized;
@@ -212,11 +212,15 @@ function formatMonto(n) {
 }
 
 function procesar(texto) {
-  const lineas = texto.split(/\r?\n/);
+  // Eliminar BOM si existe
+  const clean = texto.replace(/^\uFEFF/, '');
+  const lineas = clean.split(/\r?\n/);
   if (lineas.length < 2) { alert('El archivo parece estar vacío.'); return; }
+
   const enc = lineas[0];
-  const cols = enc.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
-  const idxAmount = cols.findIndex(c => c === 'TRANSACTION_AMOUNT');
+  const cols = splitLinea(enc).map(c => c.trim().toUpperCase());
+  const idxAmount = cols.indexOf('TRANSACTION_AMOUNT');
+
   const limpias = [], eliminadas = [];
   let montoClean = 0, montoRemoved = 0;
 
@@ -240,10 +244,9 @@ function procesar(texto) {
   document.getElementById('sRemoved').textContent = eliminadas.length;
 
   const sinEliminadas = eliminadas.length === 0;
-
-  document.getElementById('stats2').style.display        = sinEliminadas ? 'none' : 'grid';
-  document.getElementById('bloqueDescarga').style.display = sinEliminadas ? 'none' : 'block';
-  document.getElementById('avisoLimpio').style.display    = sinEliminadas ? 'block' : 'none';
+  document.getElementById('stats2').style.display         = sinEliminadas ? 'none' : 'grid';
+  document.getElementById('bloqueDescarga').style.display  = sinEliminadas ? 'none' : 'block';
+  document.getElementById('avisoLimpio').style.display     = sinEliminadas ? 'block' : 'none';
 
   if (sinEliminadas) {
     document.getElementById('montoTotal').textContent = formatMonto(montoClean);
