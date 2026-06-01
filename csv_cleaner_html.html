@@ -192,6 +192,12 @@ function procesar(texto) {
   document.getElementById('sAmountRemoved').textContent = formatMonto(montoRemoved);
   document.getElementById('msgNombres').textContent =
     origName + '_Limpio.csv   ·   ' + origName + '_Eliminados.csv';
+
+  const sinEliminadas = eliminadas.length === 0;
+  document.getElementById('bloqueDescarga').style.display = sinEliminadas ? 'none' : 'block';
+  document.getElementById('stats2').style.display = sinEliminadas ? 'none' : 'grid';
+  document.getElementById('mensajeLimpio').style.display = sinEliminadas ? 'block' : 'none';
+  document.getElementById('montoTotal').textContent = formatMonto(montoClean + montoRemoved);
   document.getElementById('resultados').style.display = 'block';
 }
 
