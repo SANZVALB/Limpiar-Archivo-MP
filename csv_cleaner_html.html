@@ -179,28 +179,31 @@ function primerCol(linea) {
   return idx === -1 ? l : l.substring(0, idx);
 }
 
-// Parser CSV robusto — maneja comillas, comillas escapadas "", comas dentro de campos
+// Parser CSV robusto
 function splitLinea(linea) {
+  const l = linea.trim();
+  // Caso especial: toda la fila envuelta en comillas "a,b,c,..."
+  if (l.startsWith('"') && l.endsWith('"') && l.indexOf('",') === -1 && l.indexOf(',"') === -1) {
+    return l.slice(1, -1).split(',');
+  }
   const partes = [];
   let i = 0;
-  while (i <= linea.length) {
-    if (i === linea.length) { partes.push(''); break; }
-    if (linea[i] === '"') {
-      // campo entrecomillado
+  while (i <= l.length) {
+    if (i === l.length) { partes.push(''); break; }
+    if (l[i] === '"') {
       i++;
       let cur = '';
-      while (i < linea.length) {
-        if (linea[i] === '"' && linea[i+1] === '"') { cur += '"'; i += 2; }
-        else if (linea[i] === '"') { i++; break; }
-        else { cur += linea[i++]; }
+      while (i < l.length) {
+        if (l[i] === '"' && l[i+1] === '"') { cur += '"'; i += 2; }
+        else if (l[i] === '"') { i++; break; }
+        else { cur += l[i++]; }
       }
       partes.push(cur);
-      if (linea[i] === ',') i++; // saltar separador
+      if (l[i] === ',') i++;
     } else {
-      // campo sin comillas
-      let j = linea.indexOf(',', i);
-      if (j === -1) { partes.push(linea.substring(i)); break; }
-      partes.push(linea.substring(i, j));
+      let j = l.indexOf(',', i);
+      if (j === -1) { partes.push(l.substring(i)); break; }
+      partes.push(l.substring(i, j));
       i = j + 1;
     }
   }
