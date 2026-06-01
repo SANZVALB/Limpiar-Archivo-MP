@@ -83,7 +83,7 @@
     text-align: center;
   }
   .aviso-limpio .icono { font-size: 32px; margin-bottom: 0.5rem; }
-  .aviso-limpio p { font-size: 15px; color: #1D9E75; font-weight: 600; margin-bottom: 0.25rem; }
+  .aviso-limpio p { font-size: 15px; color: #1D9E75; font-weight: 600; }
   .aviso-limpio .monto-total { font-size: 13px; color: #7070a0; margin-top: 0.5rem; }
   .aviso-limpio .monto-total span { color: #1D9E75; font-weight: 600; }
 
@@ -178,16 +178,31 @@ function primerCol(linea) {
   return idx === -1 ? l : l.substring(0, idx);
 }
 
+// Parser CSV robusto — maneja comillas, comillas escapadas "", comas dentro de campos
 function splitLinea(linea) {
   const partes = [];
-  let cur = '', inQ = false;
-  for (let i = 0; i < linea.length; i++) {
-    const c = linea[i];
-    if (c === '"') { inQ = !inQ; continue; }
-    if (c === ',' && !inQ) { partes.push(cur); cur = ''; continue; }
-    cur += c;
+  let i = 0;
+  while (i <= linea.length) {
+    if (i === linea.length) { partes.push(''); break; }
+    if (linea[i] === '"') {
+      // campo entrecomillado
+      i++;
+      let cur = '';
+      while (i < linea.length) {
+        if (linea[i] === '"' && linea[i+1] === '"') { cur += '"'; i += 2; }
+        else if (linea[i] === '"') { i++; break; }
+        else { cur += linea[i++]; }
+      }
+      partes.push(cur);
+      if (linea[i] === ',') i++; // saltar separador
+    } else {
+      // campo sin comillas
+      let j = linea.indexOf(',', i);
+      if (j === -1) { partes.push(linea.substring(i)); break; }
+      partes.push(linea.substring(i, j));
+      i = j + 1;
+    }
   }
-  partes.push(cur);
   return partes;
 }
 
@@ -212,8 +227,7 @@ function formatMonto(n) {
 }
 
 function procesar(texto) {
-  // Eliminar BOM si existe
-  const clean = texto.replace(/^\uFEFF/, '');
+  const clean = texto.replace(/^\uFEFF/, ''); // eliminar BOM
   const lineas = clean.split(/\r?\n/);
   if (lineas.length < 2) { alert('El archivo parece estar vacío.'); return; }
 
@@ -244,9 +258,9 @@ function procesar(texto) {
   document.getElementById('sRemoved').textContent = eliminadas.length;
 
   const sinEliminadas = eliminadas.length === 0;
-  document.getElementById('stats2').style.display         = sinEliminadas ? 'none' : 'grid';
-  document.getElementById('bloqueDescarga').style.display  = sinEliminadas ? 'none' : 'block';
-  document.getElementById('avisoLimpio').style.display     = sinEliminadas ? 'block' : 'none';
+  document.getElementById('stats2').style.display          = sinEliminadas ? 'none' : 'grid';
+  document.getElementById('bloqueDescarga').style.display   = sinEliminadas ? 'none' : 'block';
+  document.getElementById('avisoLimpio').style.display      = sinEliminadas ? 'block' : 'none';
 
   if (sinEliminadas) {
     document.getElementById('montoTotal').textContent = formatMonto(montoClean);
