@@ -4,97 +4,111 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Limpiador de CSV</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: Arial, sans-serif;
-    background: #f4f4f4;
+    font-family: 'Inter', sans-serif;
+    background: #0d0d1a;
+    color: #e0e0f0;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
-    padding: 2rem 1rem;
-    min-height: 100vh;
+    align-items: flex-start;
+    padding: 2.5rem 1rem;
   }
   .card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 2rem;
+    background: #13131f;
+    border: 1px solid #2a2a45;
+    border-radius: 18px;
+    padding: 2.5rem;
     width: 100%;
-    max-width: 640px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    max-width: 660px;
   }
-  h1 { font-size: 22px; font-weight: 600; margin-bottom: 0.25rem; color: #111; }
-  .sub { font-size: 14px; color: #666; margin-bottom: 1.5rem; }
+  .header { display: flex; align-items: center; gap: 14px; margin-bottom: 0.4rem; }
+  .logo {
+    width: 42px; height: 42px; border-radius: 10px;
+    background: #534AB7;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  h1 { font-size: 22px; font-weight: 700; color: #fff; }
+  .sub { font-size: 13px; color: #7070a0; margin-bottom: 2rem; margin-left: 56px; }
 
   .drop-zone {
-    border: 2px dashed #ccc;
-    border-radius: 10px;
+    border: 1.5px dashed #3a3a6a;
+    border-radius: 14px;
     padding: 2.5rem 1rem;
     text-align: center;
     cursor: pointer;
-    background: #fafafa;
+    background: #0f0f1e;
     transition: background 0.15s, border-color 0.15s;
     margin-bottom: 1.5rem;
   }
-  .drop-zone.dragover { background: #eef4ff; border-color: #4a7cf6; }
-  .drop-zone .icon { font-size: 40px; margin-bottom: 0.5rem; }
-  .drop-zone p { font-size: 15px; color: #444; }
-  .drop-zone span { font-size: 12px; color: #999; }
+  .drop-zone:hover, .drop-zone.dragover {
+    background: #1a1a35;
+    border-color: #7F77DD;
+  }
+  .drop-icon { font-size: 36px; margin-bottom: 0.6rem; }
+  .drop-zone p { font-size: 15px; color: #c0c0e0; }
+  .drop-zone p strong { color: #AFA9EC; }
+  .drop-zone span { font-size: 12px; color: #50507a; }
   input[type="file"] { display: none; }
 
   .criterios {
-    background: #fff8f8;
-    border: 1px solid #fdd;
-    border-radius: 10px;
+    background: #0f0f1e;
+    border: 1px solid #2a2a45;
+    border-radius: 12px;
     padding: 1rem 1.25rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
   }
-  .criterios h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #999; margin-bottom: 0.75rem; }
-  .criterio { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 0.4rem; font-size: 13px; }
-  .criterio .icono { color: #e53e3e; flex-shrink: 0; margin-top: 1px; }
-  .criterio .desc { color: #666; }
+  .criterios h3 {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: #50507a; margin-bottom: 0.75rem;
+  }
+  .criterio { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 0.5rem; }
+  .criterio .dot { width: 6px; height: 6px; border-radius: 50%; background: #534AB7; margin-top: 5px; flex-shrink: 0; }
+  .criterio .nombre { font-size: 13px; color: #AFA9EC; font-weight: 500; }
+  .criterio .desc { font-size: 12px; color: #50507a; }
 
   .resultados { display: none; }
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.25rem; }
-  .stat { background: #f9f9f9; border-radius: 8px; padding: 0.75rem 1rem; text-align: center; }
-  .stat .lbl { font-size: 12px; color: #888; margin-bottom: 4px; }
-  .stat .val { font-size: 26px; font-weight: 600; }
-  .stat.ok .val { color: #2e7d32; }
-  .stat.rm .val { color: #c62828; }
-  .stat.tot .val { color: #333; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+  .stat { background: #0f0f1e; border: 1px solid #2a2a45; border-radius: 12px; padding: 1rem; text-align: center; }
+  .stat .lbl { font-size: 11px; color: #50507a; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .stat .val { font-size: 28px; font-weight: 700; }
+  .stat.tot .val { color: #AFA9EC; }
+  .stat.ok .val  { color: #1D9E75; }
+  .stat.rm .val  { color: #E24B4A; }
 
-  .btn-group { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn-group { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 1rem; }
   .btn {
-    flex: 1;
-    min-width: 180px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 14px 20px;
-    border-radius: 8px;
-    border: none;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
+    flex: 1; min-width: 180px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 14px 20px; border-radius: 10px; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer;
     transition: opacity 0.15s, transform 0.1s;
   }
-  .btn:hover { opacity: 0.88; }
+  .btn:hover { opacity: 0.85; }
   .btn:active { transform: scale(0.97); }
-  .btn-green { background: #2e7d32; color: #fff; }
-  .btn-red   { background: #c62828; color: #fff; }
-  .btn-gray  { background: #eee; color: #444; }
+  .btn-purple { background: #534AB7; color: #fff; }
+  .btn-red    { background: #2a1515; color: #E24B4A; border: 1px solid #5a2020; }
+  .btn-ghost  { background: #1a1a2e; color: #7070a0; border: 1px solid #2a2a45; }
 
-  .msg { font-size: 13px; color: #888; margin-top: 1rem; text-align: center; }
-  .error-msg { color: #c62828; font-weight: 500; }
+  .nombre-msg { font-size: 12px; color: #50507a; text-align: center; margin-top: 0.5rem; }
+
+  .divider { border: none; border-top: 1px solid #2a2a45; margin: 1.5rem 0; }
 </style>
 </head>
 <body>
 <div class="card">
-  <h1>🧹 Limpiador de CSV</h1>
-  <p class="sub">Subí el archivo, se limpia automáticamente y podés descargar los dos archivos.</p>
+  <div class="header">
+    <div class="logo">🧹</div>
+    <h1>Limpiador de CSV</h1>
+  </div>
+  <p class="sub">Subí tu archivo — se limpia automáticamente y descargás los dos archivos.</p>
 
   <div class="drop-zone" id="dropZone">
-    <div class="icon">📂</div>
+    <div class="drop-icon">📂</div>
     <p>Arrastrá el archivo acá o <strong>hacé clic para seleccionar</strong></p>
     <span>Solo archivos .csv</span>
     <input type="file" id="fileInput" accept=".csv">
@@ -102,28 +116,28 @@
 
   <div class="criterios">
     <h3>Criterios de exclusión activos</h3>
-    <div class="criterio"><span class="icono">🚫</span><div><strong>,88 xx</strong> <span class="desc">— Compras Cotesma vía WEB</span></div></div>
-    <div class="criterio"><span class="icono">🚫</span><div><strong>MP-Q xxx</strong> <span class="desc">— Pagos QR postnet</span></div></div>
-    <div class="criterio"><span class="icono">🚫</span><div><strong>Venta</strong> <span class="desc">— Pagos postnet Atención Comercial</span></div></div>
-    <div class="criterio"><span class="icono">🚫</span><div><strong>MELIPAYMENTS-COLLECTIONATTEMPT</strong> <span class="desc">— Cobros Mercado Pago</span></div></div>
-    <div class="criterio"><span class="icono">🚫</span><div><strong>200001460</strong> <span class="desc">— Compras con dinero en cuenta MP</span></div></div>
+    <div class="criterio"><div class="dot"></div><div><div class="nombre">,88 xx</div><div class="desc">Compras Cotesma vía WEB</div></div></div>
+    <div class="criterio"><div class="dot"></div><div><div class="nombre">MP-Q xxx</div><div class="desc">Pagos QR en postnet</div></div></div>
+    <div class="criterio"><div class="dot"></div><div><div class="nombre">Venta...</div><div class="desc">Pagos postnet Atención Comercial</div></div></div>
+    <div class="criterio"><div class="dot"></div><div><div class="nombre">MELIPAYMENTS-COLLECTIONATTEMPT</div><div class="desc">Cobros Mercado Pago</div></div></div>
+    <div class="criterio"><div class="dot"></div><div><div class="nombre">200001460</div><div class="desc">Compras con dinero en cuenta MP</div></div></div>
   </div>
 
   <div class="resultados" id="resultados">
+    <hr class="divider">
     <div class="stats">
-      <div class="stat tot"><div class="lbl">Total de filas</div><div class="val" id="sTotal">0</div></div>
-      <div class="stat ok"><div class="lbl">Filas limpias</div><div class="val" id="sClean">0</div></div>
+      <div class="stat tot"><div class="lbl">Total</div><div class="val" id="sTotal">0</div></div>
+      <div class="stat ok"><div class="lbl">Limpias</div><div class="val" id="sClean">0</div></div>
       <div class="stat rm"><div class="lbl">Eliminadas</div><div class="val" id="sRemoved">0</div></div>
     </div>
-
     <div class="btn-group">
-      <button class="btn btn-green" id="btnClean">⬇️ Descargar CSV limpio</button>
-      <button class="btn btn-red"   id="btnRemoved">⬇️ Descargar filas eliminadas</button>
+      <button class="btn btn-purple" id="btnClean">⬇ Descargar CSV limpio</button>
+      <button class="btn btn-red" id="btnRemoved">⬇ Descargar eliminadas</button>
     </div>
-    <div class="btn-group" style="margin-top:10px">
-      <button class="btn btn-gray" id="btnReset">🔄 Procesar otro archivo</button>
+    <div class="btn-group">
+      <button class="btn btn-ghost" id="btnReset">↺ Procesar otro archivo</button>
     </div>
-    <p class="msg" id="msgNombres"></p>
+    <p class="nombre-msg" id="msgNombres"></p>
   </div>
 </div>
 
@@ -140,10 +154,7 @@ let csvClean = '', csvRemoved = '', origName = '';
 
 function primerCol(linea) {
   const l = linea.trim();
-  if (l.startsWith('"')) {
-    const fin = l.indexOf('"', 1);
-    return fin === -1 ? l : l.substring(1, fin);
-  }
+  if (l.startsWith('"')) { const f = l.indexOf('"',1); return f===-1?l:l.substring(1,f); }
   const idx = l.indexOf(',');
   return idx === -1 ? l : l.substring(0, idx);
 }
@@ -151,22 +162,21 @@ function primerCol(linea) {
 function procesar(texto) {
   const lineas = texto.split(/\r?\n/);
   if (lineas.length < 2) { alert('El archivo parece estar vacío.'); return; }
-  const encabezado = lineas[0];
+  const enc = lineas[0];
   const limpias = [], eliminadas = [];
   for (let i = 1; i < lineas.length; i++) {
     const l = lineas[i];
     if (!l.trim()) continue;
-    const col1 = primerCol(l);
-    if (CRITERIOS.some(fn => fn(col1))) eliminadas.push(l);
+    if (CRITERIOS.some(fn => fn(primerCol(l)))) eliminadas.push(l);
     else limpias.push(l);
   }
-  csvClean   = [encabezado, ...limpias].join('\n');
-  csvRemoved = [encabezado, ...eliminadas].join('\n');
+  csvClean   = [enc, ...limpias].join('\n');
+  csvRemoved = [enc, ...eliminadas].join('\n');
   document.getElementById('sTotal').textContent   = limpias.length + eliminadas.length;
   document.getElementById('sClean').textContent   = limpias.length;
   document.getElementById('sRemoved').textContent = eliminadas.length;
   document.getElementById('msgNombres').textContent =
-    origName + '_Limpio.csv   |   ' + origName + '_Eliminados.csv';
+    origName + '_Limpio.csv   ·   ' + origName + '_Eliminados.csv';
   document.getElementById('resultados').style.display = 'block';
 }
 
@@ -178,32 +188,25 @@ function descargar(contenido, nombre) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-const dropZone = document.getElementById('dropZone');
+const dropZone  = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 
 dropZone.addEventListener('click', () => fileInput.click());
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault(); dropZone.classList.remove('dragover');
-  cargarArchivo(e.dataTransfer.files[0]);
-});
-fileInput.addEventListener('change', e => cargarArchivo(e.target.files[0]));
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('dragover'); cargar(e.dataTransfer.files[0]); });
+fileInput.addEventListener('change', e => cargar(e.target.files[0]));
 
-function cargarArchivo(file) {
-  if (!file || !file.name.toLowerCase().endsWith('.csv')) {
-    alert('Por favor seleccioná un archivo .csv'); return;
-  }
+function cargar(file) {
+  if (!file || !file.name.toLowerCase().endsWith('.csv')) { alert('Por favor seleccioná un archivo .csv'); return; }
   origName = file.name.replace(/\.csv$/i, '');
   const reader = new FileReader();
   reader.onload = e => procesar(e.target.result);
   reader.readAsText(file, 'UTF-8');
 }
 
-document.getElementById('btnClean').addEventListener('click', () =>
-  descargar(csvClean, origName + '_Limpio.csv'));
-document.getElementById('btnRemoved').addEventListener('click', () =>
-  descargar(csvRemoved, origName + '_Eliminados.csv'));
+document.getElementById('btnClean').addEventListener('click', () => descargar(csvClean, origName + '_Limpio.csv'));
+document.getElementById('btnRemoved').addEventListener('click', () => descargar(csvRemoved, origName + '_Eliminados.csv'));
 document.getElementById('btnReset').addEventListener('click', () => {
   document.getElementById('resultados').style.display = 'none';
   fileInput.value = ''; csvClean = ''; csvRemoved = ''; origName = '';
