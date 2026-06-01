@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Limpiador de CSV</title>
+<title>Limpieza de Archivo MP</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -29,8 +29,7 @@
   .logo { width: 58px; height: 58px; border-radius: 12px; overflow: hidden; flex-shrink: 0; }
   .logo img { width: 100%; height: 100%; object-fit: cover; }
   .header-info h1 { font-size: 20px; font-weight: 700; color: #fff; }
-  .header-info .firma { font-size: 12px; color: #7070a0; margin-top: 2px; }
-  .sub { font-size: 13px; color: #7070a0; margin-bottom: 2rem; margin-left: 74px; }
+  .sub { font-size: 13px; color: #7070a0; margin-bottom: 2rem; margin-left: 76px; }
 
   .drop-zone {
     border: 1.5px dashed #3a3a6a;
@@ -42,10 +41,7 @@
     transition: background 0.15s, border-color 0.15s;
     margin-bottom: 1.5rem;
   }
-  .drop-zone:hover, .drop-zone.dragover {
-    background: #1a1a35;
-    border-color: #7F77DD;
-  }
+  .drop-zone:hover, .drop-zone.dragover { background: #1a1a35; border-color: #7F77DD; }
   .drop-icon { font-size: 36px; margin-bottom: 0.6rem; }
   .drop-zone p { font-size: 15px; color: #c0c0e0; }
   .drop-zone p strong { color: #AFA9EC; }
@@ -59,16 +55,15 @@
     padding: 1rem 1.25rem;
     margin-bottom: 2rem;
   }
-  .criterios h3 {
-    font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
-    text-transform: uppercase; color: #50507a; margin-bottom: 0.75rem;
-  }
+  .criterios h3 { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #50507a; margin-bottom: 0.75rem; }
   .criterio { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 0.5rem; }
   .criterio .dot { width: 6px; height: 6px; border-radius: 50%; background: #534AB7; margin-top: 5px; flex-shrink: 0; }
   .criterio .nombre { font-size: 13px; color: #AFA9EC; font-weight: 500; }
   .criterio .desc { font-size: 12px; color: #50507a; }
 
   .resultados { display: none; }
+  .divider { border: none; border-top: 1px solid #2a2a45; margin: 1.5rem 0; }
+
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
   .stats2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 1.5rem; }
   .stat { background: #0f0f1e; border: 1px solid #2a2a45; border-radius: 12px; padding: 1rem; text-align: center; }
@@ -77,6 +72,21 @@
   .stat.tot .val { color: #AFA9EC; }
   .stat.ok .val  { color: #1D9E75; }
   .stat.rm .val  { color: #E24B4A; }
+
+  /* Mensaje archivo limpio */
+  .aviso-limpio {
+    display: none;
+    background: #0a2e1a;
+    border: 1px solid #1D9E75;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  .aviso-limpio .icono { font-size: 32px; margin-bottom: 0.5rem; }
+  .aviso-limpio p { font-size: 15px; color: #1D9E75; font-weight: 600; margin-bottom: 0.25rem; }
+  .aviso-limpio .monto-total { font-size: 13px; color: #7070a0; margin-top: 0.5rem; }
+  .aviso-limpio .monto-total span { color: #1D9E75; font-weight: 600; }
 
   .btn-group { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 1rem; }
   .btn {
@@ -91,21 +101,14 @@
   .btn-purple { background: #534AB7; color: #fff; }
   .btn-red    { background: #2a1515; color: #E24B4A; border: 1px solid #5a2020; }
   .btn-ghost  { background: #1a1a2e; color: #7070a0; border: 1px solid #2a2a45; }
-
   .nombre-msg { font-size: 12px; color: #50507a; text-align: center; margin-top: 0.5rem; }
-
-  .divider { border: none; border-top: 1px solid #2a2a45; margin: 1.5rem 0; }
 </style>
 </head>
 <body>
 <div class="card">
   <div class="header">
-    <div class="logo">
-      <img src="logo.png" alt="Logo SANZVAL">
-    </div>
-    <div class="header-info">
-      <h1>Limpieza de Archivo MP</h1>
-    </div>
+    <div class="logo"><img src="logo.png" alt="Logo SANZVAL"></div>
+    <div class="header-info"><h1>Limpieza de Archivo MP</h1></div>
   </div>
   <p class="sub">Subí tu archivo — se limpia automáticamente y descargás los dos archivos.</p>
 
@@ -126,23 +129,39 @@
 
   <div class="resultados" id="resultados">
     <hr class="divider">
+
+    <!-- Stats contadores -->
     <div class="stats">
       <div class="stat tot"><div class="lbl">Total</div><div class="val" id="sTotal">0</div></div>
       <div class="stat ok"><div class="lbl">Limpias</div><div class="val" id="sClean">0</div></div>
       <div class="stat rm"><div class="lbl">Eliminadas</div><div class="val" id="sRemoved">0</div></div>
     </div>
-    <div class="stats2">
+
+    <!-- Stats montos — solo si hay eliminadas -->
+    <div class="stats2" id="stats2">
       <div class="stat ok"><div class="lbl">Monto limpio (ARS)</div><div class="val" style="font-size:20px" id="sAmountClean">0,00</div></div>
       <div class="stat rm"><div class="lbl">Monto eliminado (ARS)</div><div class="val" style="font-size:20px" id="sAmountRemoved">0,00</div></div>
     </div>
-    <div class="btn-group">
-      <button class="btn btn-purple" id="btnClean">⬇ Descargar CSV limpio</button>
-      <button class="btn btn-red" id="btnRemoved">⬇ Descargar eliminadas</button>
+
+    <!-- Aviso archivo sin registros a eliminar -->
+    <div class="aviso-limpio" id="avisoLimpio">
+      <div class="icono">✅</div>
+      <p>El archivo no contiene registros a eliminar</p>
+      <div class="monto-total">Monto total del archivo: <span id="montoTotal">0,00</span> ARS</div>
     </div>
-    <div class="btn-group">
+
+    <!-- Botones descarga — solo si hay eliminadas -->
+    <div id="bloqueDescarga">
+      <div class="btn-group">
+        <button class="btn btn-purple" id="btnClean">⬇ Descargar CSV limpio</button>
+        <button class="btn btn-red"    id="btnRemoved">⬇ Descargar eliminadas</button>
+      </div>
+      <p class="nombre-msg" id="msgNombres"></p>
+    </div>
+
+    <div class="btn-group" style="margin-top:10px">
       <button class="btn btn-ghost" id="btnReset">↺ Procesar otro archivo</button>
     </div>
-    <p class="nombre-msg" id="msgNombres"></p>
   </div>
 </div>
 
@@ -159,19 +178,48 @@ let csvClean = '', csvRemoved = '', origName = '';
 
 function primerCol(linea) {
   const l = linea.trim();
-  if (l.startsWith('"')) { const f = l.indexOf('"',1); return f===-1?l:l.substring(1,f); }
+  if (l.startsWith('"')) { const f = l.indexOf('"', 1); return f === -1 ? l : l.substring(1, f); }
   const idx = l.indexOf(',');
   return idx === -1 ? l : l.substring(0, idx);
+}
+
+function parseMonto(linea, idx) {
+  const partes = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < linea.length; i++) {
+    const c = linea[i];
+    if (c === '"') { inQ = !inQ; continue; }
+    if (c === ',' && !inQ) { partes.push(cur); cur = ''; continue; }
+    cur += c;
+  }
+  partes.push(cur);
+  const val = (partes[idx] || '').trim();
+  if (!val) return 0;
+  let normalized;
+  if (val.includes('.') && val.includes(',')) {
+    normalized = val.replace(/\./g, '').replace(',', '.');
+  } else if (val.includes(',') && !val.includes('.')) {
+    normalized = val.replace(',', '.');
+  } else {
+    normalized = val;
+  }
+  const n = parseFloat(normalized);
+  return isNaN(n) ? 0 : n;
+}
+
+function formatMonto(n) {
+  return n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function procesar(texto) {
   const lineas = texto.split(/\r?\n/);
   if (lineas.length < 2) { alert('El archivo parece estar vacío.'); return; }
   const enc = lineas[0];
-  const cols = enc.split(',').map(c => c.trim().replace(/^"|"$/g,''));
+  const cols = enc.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
   const idxAmount = cols.findIndex(c => c === 'TRANSACTION_AMOUNT');
   const limpias = [], eliminadas = [];
   let montoClean = 0, montoRemoved = 0;
+
   for (let i = 1; i < lineas.length; i++) {
     const l = lineas[i];
     if (!l.trim()) continue;
@@ -183,59 +231,30 @@ function procesar(texto) {
       if (idxAmount >= 0) montoClean += parseMonto(l, idxAmount);
     }
   }
+
   csvClean   = [enc, ...limpias].join('\n');
   csvRemoved = [enc, ...eliminadas].join('\n');
+
   document.getElementById('sTotal').textContent   = limpias.length + eliminadas.length;
   document.getElementById('sClean').textContent   = limpias.length;
   document.getElementById('sRemoved').textContent = eliminadas.length;
-  document.getElementById('sAmountClean').textContent   = formatMonto(montoClean);
-  document.getElementById('sAmountRemoved').textContent = formatMonto(montoRemoved);
-  document.getElementById('msgNombres').textContent =
-    origName + '_Limpio.csv   ·   ' + origName + '_Eliminados.csv';
 
   const sinEliminadas = eliminadas.length === 0;
+
+  document.getElementById('stats2').style.display        = sinEliminadas ? 'none' : 'grid';
   document.getElementById('bloqueDescarga').style.display = sinEliminadas ? 'none' : 'block';
-  document.getElementById('stats2').style.display = sinEliminadas ? 'none' : 'grid';
-  document.getElementById('mensajeLimpio').style.display = sinEliminadas ? 'block' : 'none';
-  document.getElementById('montoTotal').textContent = formatMonto(montoClean + montoRemoved);
-  document.getElementById('resultados').style.display = 'block';
-}
+  document.getElementById('avisoLimpio').style.display    = sinEliminadas ? 'block' : 'none';
 
-function parseMonto(linea, idx) {
-  // Extraer campos respetando comillas
-  const partes = [];
-  let cur = '', inQ = false;
-  for (let i = 0; i < linea.length; i++) {
-    const c = linea[i];
-    if (c === '"') { inQ = !inQ; continue; }
-    if (c === ',' && !inQ) { partes.push(cur); cur = ''; continue; }
-    cur += c;
-  }
-  partes.push(cur);
-
-  const val = (partes[idx] || '').trim();
-  if (!val) return 0;
-
-  // Detectar formato: si tiene punto Y coma, el punto es miles y coma es decimal
-  // Si solo tiene coma, la coma es decimal
-  // Si solo tiene punto, el punto es decimal
-  let normalized;
-  if (val.includes('.') && val.includes(',')) {
-    // Formato europeo: 32.215.426,81
-    normalized = val.replace(/\./g, '').replace(',', '.');
-  } else if (val.includes(',') && !val.includes('.')) {
-    // Solo coma: 31866,00
-    normalized = val.replace(',', '.');
+  if (sinEliminadas) {
+    document.getElementById('montoTotal').textContent = formatMonto(montoClean);
   } else {
-    // Solo punto o sin separador
-    normalized = val;
+    document.getElementById('sAmountClean').textContent   = formatMonto(montoClean);
+    document.getElementById('sAmountRemoved').textContent = formatMonto(montoRemoved);
+    document.getElementById('msgNombres').textContent =
+      origName + '_Limpio.csv   ·   ' + origName + '_Eliminados.csv';
   }
-  const n = parseFloat(normalized);
-  return isNaN(n) ? 0 : n;
-}
 
-function formatMonto(n) {
-  return n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  document.getElementById('resultados').style.display = 'block';
 }
 
 function descargar(contenido, nombre) {
@@ -263,7 +282,7 @@ function cargar(file) {
   reader.readAsText(file, 'UTF-8');
 }
 
-document.getElementById('btnClean').addEventListener('click', () => descargar(csvClean, origName + '_Limpio.csv'));
+document.getElementById('btnClean').addEventListener('click',   () => descargar(csvClean,   origName + '_Limpio.csv'));
 document.getElementById('btnRemoved').addEventListener('click', () => descargar(csvRemoved, origName + '_Eliminados.csv'));
 document.getElementById('btnReset').addEventListener('click', () => {
   document.getElementById('resultados').style.display = 'none';
