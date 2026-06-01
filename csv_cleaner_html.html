@@ -181,24 +181,33 @@ function primerCol(linea) {
 
 // Parser CSV robusto
 function splitLinea(linea) {
+  const l = linea.trim();
+  // Caso archivo grande: toda la fila entre comillas "col1,col2,col3,..."
+  // Se detecta porque empieza con " y termina con "
+  // y el contenido interno tiene comillas dobles "" para campos entrecomillados
+  if (l.startsWith('"') && l.endsWith('"')) {
+    // Quitar comillas externas y reemplazar "" por placeholder
+    const inner = l.slice(1, -1).replace(/""/g, '\x00');
+    const partes = inner.split(',').map(p => p.replace(/\x00/g, '"'));
+    if (partes.length > 3) return partes; // es fila completa
+  }
+  // Caso archivo chico: "col1",col2,col3,...
   const partes = [];
   let i = 0, cur = '';
-  while (i < linea.length) {
-    if (linea[i] === '"') {
-      // campo entrecomillado: leer hasta comilla de cierre
+  while (i < l.length) {
+    if (l[i] === '"') {
       i++;
-      while (i < linea.length) {
-        if (linea[i] === '"' && linea[i+1] === '"') { cur += '"'; i += 2; }
-        else if (linea[i] === '"') { i++; break; }
-        else { cur += linea[i++]; }
+      while (i < l.length) {
+        if (l[i] === '"' && l[i+1] === '"') { cur += '"'; i += 2; }
+        else if (l[i] === '"') { i++; break; }
+        else { cur += l[i++]; }
       }
-      // después de cerrar comillas, saltar coma si hay
-      if (linea[i] === ',') { partes.push(cur); cur = ''; i++; }
-      else { partes.push(cur); cur = ''; }
-    } else if (linea[i] === ',') {
+      partes.push(cur); cur = '';
+      if (l[i] === ',') i++;
+    } else if (l[i] === ',') {
       partes.push(cur); cur = ''; i++;
     } else {
-      cur += linea[i++];
+      cur += l[i++];
     }
   }
   partes.push(cur);
