@@ -127,6 +127,7 @@
   </div>
 
   <div class="resultados" id="resultados">
+    <div id="debug" style="display:none; background:#1a1a00; border:1px solid #555; border-radius:8px; padding:10px; font-size:11px; color:#ffee88; margin-bottom:1rem; word-break:break-all;"></div>
     <hr class="divider">
 
     <div class="stats">
@@ -234,6 +235,19 @@ function procesar(texto) {
   const enc = lineas[0];
   const cols = splitLinea(enc).map(c => c.trim().toUpperCase());
   const idxAmount = cols.indexOf('TRANSACTION_AMOUNT');
+
+  // DEBUG — visible en pantalla
+  const dbg = document.getElementById('debug');
+  dbg.textContent = `Encabezado cols: ${cols.length} | idx TRANSACTION_AMOUNT: ${idxAmount} | Total líneas: ${lineas.length}`;
+  dbg.style.display = 'block';
+
+  // Verificar parseo de primera fila de datos
+  if (lineas.length > 1) {
+    const primeraFila = lineas[1];
+    const partesPrueba = splitLinea(primeraFila);
+    const montoPrueba = idxAmount >= 0 ? (partesPrueba[idxAmount] || 'N/A') : 'idx no encontrado';
+    dbg.textContent += ` | 1ra fila cols: ${partesPrueba.length} | AMOUNT[${idxAmount}]: ${montoPrueba}`;
+  }
 
   const limpias = [], eliminadas = [];
   let montoClean = 0, montoRemoved = 0;
