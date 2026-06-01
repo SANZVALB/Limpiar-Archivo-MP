@@ -192,13 +192,45 @@ function procesar(texto) {
   document.getElementById('sAmountRemoved').textContent = formatMonto(montoRemoved);
   document.getElementById('msgNombres').textContent =
     origName + '_Limpio.csv   ·   ' + origName + '_Eliminados.csv';
+
+  const sinEliminadas = eliminadas.length === 0;
+  document.getElementById('bloqueDescarga').style.display = sinEliminadas ? 'none' : 'block';
+  document.getElementById('stats2').style.display = sinEliminadas ? 'none' : 'grid';
+  document.getElementById('mensajeLimpio').style.display = sinEliminadas ? 'block' : 'none';
+  document.getElementById('montoTotal').textContent = formatMonto(montoClean + montoRemoved);
   document.getElementById('resultados').style.display = 'block';
 }
 
 function parseMonto(linea, idx) {
-  const partes = linea.match(/(".*?"|[^,]+)(?=,|$)/g) || linea.split(',');
-  const val = partes[idx] ? partes[idx].replace(/"/g,'').trim() : '';
-  const n = parseFloat(val.replace(',','.'));
+  // Extraer campos respetando comillas
+  const partes = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < linea.length; i++) {
+    const c = linea[i];
+    if (c === '"') { inQ = !inQ; continue; }
+    if (c === ',' && !inQ) { partes.push(cur); cur = ''; continue; }
+    cur += c;
+  }
+  partes.push(cur);
+
+  const val = (partes[idx] || '').trim();
+  if (!val) return 0;
+
+  // Detectar formato: si tiene punto Y coma, el punto es miles y coma es decimal
+  // Si solo tiene coma, la coma es decimal
+  // Si solo tiene punto, el punto es decimal
+  let normalized;
+  if (val.includes('.') && val.includes(',')) {
+    // Formato europeo: 32.215.426,81
+    normalized = val.replace(/\./g, '').replace(',', '.');
+  } else if (val.includes(',') && !val.includes('.')) {
+    // Solo coma: 31866,00
+    normalized = val.replace(',', '.');
+  } else {
+    // Solo punto o sin separador
+    normalized = val;
+  }
+  const n = parseFloat(normalized);
   return isNaN(n) ? 0 : n;
 }
 
