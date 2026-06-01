@@ -69,7 +69,8 @@
   .criterio .desc { font-size: 12px; color: #50507a; }
 
   .resultados { display: none; }
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
+  .stats2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 1.5rem; }
   .stat { background: #0f0f1e; border: 1px solid #2a2a45; border-radius: 12px; padding: 1rem; text-align: center; }
   .stat .lbl { font-size: 11px; color: #50507a; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
   .stat .val { font-size: 28px; font-weight: 700; }
@@ -130,6 +131,10 @@
       <div class="stat ok"><div class="lbl">Limpias</div><div class="val" id="sClean">0</div></div>
       <div class="stat rm"><div class="lbl">Eliminadas</div><div class="val" id="sRemoved">0</div></div>
     </div>
+    <div class="stats2">
+      <div class="stat ok"><div class="lbl">Monto limpio (ARS)</div><div class="val" style="font-size:20px" id="sAmountClean">0,00</div></div>
+      <div class="stat rm"><div class="lbl">Monto eliminado (ARS)</div><div class="val" style="font-size:20px" id="sAmountRemoved">0,00</div></div>
+    </div>
     <div class="btn-group">
       <button class="btn btn-purple" id="btnClean">⬇ Descargar CSV limpio</button>
       <button class="btn btn-red" id="btnRemoved">⬇ Descargar eliminadas</button>
@@ -163,21 +168,42 @@ function procesar(texto) {
   const lineas = texto.split(/\r?\n/);
   if (lineas.length < 2) { alert('El archivo parece estar vacío.'); return; }
   const enc = lineas[0];
+  const cols = enc.split(',').map(c => c.trim().replace(/^"|"$/g,''));
+  const idxAmount = cols.findIndex(c => c === 'TRANSACTION_AMOUNT');
   const limpias = [], eliminadas = [];
+  let montoClean = 0, montoRemoved = 0;
   for (let i = 1; i < lineas.length; i++) {
     const l = lineas[i];
     if (!l.trim()) continue;
-    if (CRITERIOS.some(fn => fn(primerCol(l)))) eliminadas.push(l);
-    else limpias.push(l);
+    if (CRITERIOS.some(fn => fn(primerCol(l)))) {
+      eliminadas.push(l);
+      if (idxAmount >= 0) montoRemoved += parseMonto(l, idxAmount);
+    } else {
+      limpias.push(l);
+      if (idxAmount >= 0) montoClean += parseMonto(l, idxAmount);
+    }
   }
   csvClean   = [enc, ...limpias].join('\n');
   csvRemoved = [enc, ...eliminadas].join('\n');
   document.getElementById('sTotal').textContent   = limpias.length + eliminadas.length;
   document.getElementById('sClean').textContent   = limpias.length;
   document.getElementById('sRemoved').textContent = eliminadas.length;
+  document.getElementById('sAmountClean').textContent   = formatMonto(montoClean);
+  document.getElementById('sAmountRemoved').textContent = formatMonto(montoRemoved);
   document.getElementById('msgNombres').textContent =
     origName + '_Limpio.csv   ·   ' + origName + '_Eliminados.csv';
   document.getElementById('resultados').style.display = 'block';
+}
+
+function parseMonto(linea, idx) {
+  const partes = linea.match(/(".*?"|[^,]+)(?=,|$)/g) || linea.split(',');
+  const val = partes[idx] ? partes[idx].replace(/"/g,'').trim() : '';
+  const n = parseFloat(val.replace(',','.'));
+  return isNaN(n) ? 0 : n;
+}
+
+function formatMonto(n) {
+  return n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function descargar(contenido, nombre) {
