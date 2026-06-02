@@ -1,36 +1,45 @@
 # Limpieza de Archivo Mercado Pago
 
-Aplicación web simple para procesar archivos CSV de Mercado Pago, limpiando registros no relevantes y generando archivos separados.
+Aplicación web para procesar, limpiar y analizar archivos CSV exportados desde Mercado Pago.
+
+Permite separar automáticamente registros relevantes de operaciones internas o no deseadas, generando archivos listos para análisis financiero o conciliación.
+
+---
 
 ## 🚀 Qué hace
 
-Permite subir un archivo `.csv` y automáticamente:
+La herramienta permite:
 
-- Filtra filas según criterios predefinidos
-- Separa en:
-  - ✅ Registros válidos (limpios)
+- Subir un archivo CSV
+- Analizar automáticamente su contenido
+- Filtrar registros según criterios definidos
+- Separar en dos grupos:
+  - ✅ Registros limpios (válidos)
   - ❌ Registros eliminados
-- Calcula:
-  - Cantidad de registros
-  - Monto total limpio
-  - Monto eliminado
-- Genera dos archivos descargables:
-  - `*_Limpio.csv`
-  - `*_Eliminados.csv`
+- Calcular:
+  - Cantidad de filas totales
+  - Registros limpios
+  - Registros eliminados
+  - Monto limpio (ARS)
+  - Monto eliminado (ARS)
+- Descargar resultados en formato CSV
 
 ---
 
 ## 📁 Uso
 
-1. Subir un archivo CSV
+1. Subir o arrastrar un archivo `.csv`
 2. El sistema procesa automáticamente
-3. Descargar los resultados
+3. Visualizar resultados en pantalla
+4. Descargar:
+   - `*_Limpio.csv`
+   - `*_Eliminados.csv`
 
 ---
 
 ## 🧠 Lógica de limpieza
 
-Se eliminan filas que comienzan con alguno de los siguientes valores en la primera columna:
+Se eliminan filas cuya **primera columna** coincide con alguno de los siguientes patrones:
 
 - `88 xx`
 - `200001460`
@@ -43,19 +52,43 @@ Se eliminan filas que comienzan con alguno de los siguientes valores en la prime
 
 ## 💰 Cálculo de montos
 
-- Se utiliza la columna `TRANSACTION_AMOUNT`
-- El valor se normaliza para soportar:
-  - formato con punto (`1234.56`)
-  - formato con coma (`1234,56`)
-  - formatos mixtos (`1.234,56`)
+- Se usa la columna: `TRANSACTION_AMOUNT`
+- Se soportan formatos:
+  - `1234.56`
+  - `1234,56`
+  - `1.234,56`
+- Se normaliza automáticamente antes de calcular
 
 ---
 
-## ⚠️ Consideraciones técnicas
+## ⚙️ Procesamiento del CSV
 
-- El procesamiento se realiza totalmente en el navegador (no hay backend)
-- El CSV puede contener campos entre comillas y caracteres especiales
-- Se utiliza un parser manual para interpretar las filas
+El sistema incluye un parser manual capaz de manejar:
+
+- Filas completas entre comillas:
+  `"col1,col2,col3,..."`
+- Campos con comillas escapadas:
+  `"texto ""interno"""`
+- CSV estándar y CSV exportado por sistemas financieros
+
+Todo el procesamiento se realiza en el navegador (sin servidor).
+
+---
+
+## 🖥️ Interfaz
+
+- Drag & Drop de archivos
+- Feedback visual del archivo cargado
+- Visualización de métricas
+- Descarga directa de resultados
+
+---
+
+## ⚠️ Limitaciones
+
+- Solo soporta archivos separados por coma `,`
+- No maneja saltos de línea dentro de celdas
+- Requiere que exista la columna `TRANSACTION_AMOUNT`
 
 ---
 
@@ -63,12 +96,14 @@ Se eliminan filas que comienzan con alguno de los siguientes valores en la prime
 
 - HTML
 - CSS
-- JavaScript (vanilla)
+- JavaScript (Vanilla)
 
 ---
 
 ## 📌 Autor
 
-Desarrollado por SANZVAL
+SANZVAL
+## URL
+https://sanzvalb.github.io/Limpiar-Archivo-MP/csv_cleaner_html.html
 ``
 # https://sanzvalb.github.io/Limpiar-Archivo-MP/csv_cleaner_html.html
