@@ -105,5 +105,4 @@ Todo el procesamiento se realiza en el navegador (sin servidor).
 SANZVAL
 ## URL
 https://sanzvalb.github.io/Limpiar-Archivo-MP/csv_cleaner_html.html
-``
-# https://sanzvalb.github.io/Limpiar-Archivo-MP/csv_cleaner_html.html
+
