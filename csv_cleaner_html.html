@@ -183,15 +183,31 @@ function primerCol(linea) {
 // Parser CSV robusto
 function splitLinea(linea) {
   const l = linea.trim();
-  // Caso archivo grande: toda la fila entre comillas "col1,col2,col3,..."
-  // Se detecta porque empieza con " y termina con "
-  // y el contenido interno tiene comillas dobles "" para campos entrecomillados
-  if (l.startsWith('"') && l.endsWith('"')) {
-    // Quitar comillas externas y reemplazar "" por placeholder
-    const inner = l.slice(1, -1).replace(/""/g, '\x00');
-    const partes = inner.split(',').map(p => p.replace(/\x00/g, '"'));
-    if (partes.length > 3) return partes; // es fila completa
+
+  // Caso archivo MP grande: toda la fila real está entre las primeras comillas
+  // Formato: "col1,col2,...,colN",,,,,  (comas vacías al final)
+  // Se detecta porque empieza con " y contiene '",,' o termina en ',"'
+  // Estrategia: encontrar el cierre de la comilla envolvente (primera " seguida de , o fin)
+  if (l.startsWith('"')) {
+    // Buscar el índice de cierre: primer " que esté seguido de , o sea el último char
+    let closeIdx = -1;
+    for (let k = 1; k < l.length; k++) {
+      if (l[k] === '"' && l[k-1] !== '"') {
+        // puede ser cierre si lo que sigue es , o fin de string
+        if (k + 1 >= l.length || l[k + 1] === ',') {
+          // verificar que no sea escape ""
+          if (l[k - 1] !== '"' || k < 2) { closeIdx = k; break; }
+        }
+      }
+    }
+    if (closeIdx > 0) {
+      // Extraer el contenido interno y hacer split
+      const inner = l.slice(1, closeIdx).replace(/""/g, '\x00');
+      const partes = inner.split(',').map(p => p.replace(/\x00/g, '"'));
+      if (partes.length > 3) return partes; // es fila completa MP
+    }
   }
+
   // Caso archivo chico: "col1",col2,col3,...
   const partes = [];
   let i = 0, cur = '';
